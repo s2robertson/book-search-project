@@ -1,37 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results</title>
-    <link href="https://cdn.tailwindcss.com/2.2.19/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Results</title>
+  <link href="https://cdn.tailwindcss.com/2.2.19/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <section class="leftSection">
-    <div class="flex flex-row items-start md:items-stretch md:flex-col content-start md:content-stretch min-h-screen bg-primary">
-      <div class="w-1/3 bg-gray-100 p-3">
-        <h1 class="text-primary">Book Search App</h1>
-        <form id="search-form" class="mb-2">
-          <input id="search-input" class="w-full bg-white border border-gray-300 rounded-md py-2 px-3 mb-2" type="text" placeholder="Search">
-          <select id="format-input" class="w-full bg-white border border-gray-300 rounded-md py-2 px-3 mb-2">
-            <option value="" disabled selected>Choose a type</option>
-            <option value="Book1">Book1</option>
-            <option value="Book2">Book2</option>
-            <option value="Book3">Book3</option>
-          </select>
-          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Search</button>
-        </form>
-      </div>
+
+<body class="flex-shrink">
+  <section class="leftSection">
+    <div class="w-1/3 bg-primary bg-gray-100 p-3">
+      <h1 class="text-4xl font-bold text-gray-800">Book Search</h1>
+      <form id="search-form" class="mb-2">
+        <input id="search-input" class="w-full bg-white border border-gray-300 rounded-md py-2 px-3 mb-2" type="text"
+          placeholder="Search">
+        <select id="format-input" class="w-full bg-white border border-gray-300 rounded-md py-2 px-3 mb-2">
+          <option value="" disabled selected>Choose a type</option>
+          <option value="Book1">Book1</option>
+          <option value="Book2">Book2</option>
+          <option value="Book3">Book3</option>
+        </select>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Search</button>
+      </form>
+    </div>
     </section>
     <section class="rightSection">
       <div class=" w-2/3">
-        <h2 class="text-white">Results<span id="result-text"></span></h2>
+        <h2>Results<span id="result-text"></span></h2>
         <div id="result-content"></div>
       </div>
-    </div>
-    </section>
-  </body>
-  <script src="https://cdn.tailwindcss.com"></script>
+    </section>   
+</body>
+<script src="https://cdn.tailwindcss.com"></script>
 </html>
+
+
+
+
 

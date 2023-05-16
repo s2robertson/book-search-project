@@ -6,34 +6,28 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/css/style.css">
-    <link href="https://cdn.tailwindcss.com/2.2.19/tailwind.min.css" rel="stylesheet">
     <title>Book Search Application</title>
 </head>
 
-<body>
-    <main>
-        <div class="text-center bg-slate-500 container mx-auto">
-            <!-- <div class="flex flex-col h-full justify-center"> -->
-            <h1 class="text-4xl font-bold text-gray-800">Book Search</h1>
+<body class="flex-shrink container mx-auto">
+    <section class="mt-40">
+        <div class="text-center bg-slate-300 py-2 px-4">
+            <h1 class="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl"><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Book Search </span>App</h1>
             <form id="search-form">
-            <label>
                 <input placeholder="search" class="text-center rounded" id="search-input">
-            </label>
-            <div class="py-2 px-4">
-                <select name="books" id="books">
-                    <option value=""> </option>
-                    <option value="book1">book1</option>
-                    <option value="book2">book2</option>
-                </select>
-            </div>
+                <div class="py-2 px-4">
+                    <select name="books" id="books">
+                        <option value=""> </option>
+                        <option value="book1">book1</option>
+                        <option value="book2">book2</option>
+                    </select>
+                </div>
             </form>
             <button class="font-bold bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
                 Search
             </button>
         </div>
-    </main>
-
+    </section>
     <script src="https://cdn.tailwindcss.com"></script>
 </body>
-
 </html>
