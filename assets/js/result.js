@@ -1,3 +1,5 @@
+const listItemRawData = new Map();
+
 let unparsedParams = document.location.search;
 if (unparsedParams.startsWith('?')) {
     unparsedParams = unparsedParams.slice(1);
@@ -48,15 +50,24 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
             if (!imageUrl) {
                 imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
             }
-            listEl.append(buildListItem(title, author, description, imageUrl));
+            const listItem = buildListItem(title, author, description, imageUrl);
+            listItem.dataset.rawItemId = item.id;
+            listItemRawData.set(item.id, item);
+            listEl.append(listItem);
         })
-    
+        listEl.addEventListener('click', function(event) {
+            const listItem = event.target.closest('li');
+            const rawItemId = listItem?.dataset.rawItemId;
+            if (rawItemId) {
+                const rawItem = listItemRawData.get(rawItemId)
+                buildDetailsPaneGoogleBooks(rawItem);
+            }
+        })
         document.getElementById('result-content').replaceChildren(listEl);
     })
 }
 
 function fetchFromOpenLibrary(searchQuery, searchType) {
-    console.log('Fetching from open library');
     let fetchQuery = '';
     if (searchType == 'author') {
         fetchQuery = `author=${searchQuery}`;
@@ -81,8 +92,10 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
             const author = doc.author_name?.join(', ') || '';
             const description = '';
             const imageUrl = '';
-            listEl.append(buildListItem(title, author, description, imageUrl));
-        })
+            const listItemEl = buildListItem(title, author, description, imageUrl);
+            listItemEl.dataset.rawItem = doc;
+            listEl.append(listItemEl);
+        });
         document.getElementById('result-content').replaceChildren(listEl);
     })
 }
@@ -106,4 +119,51 @@ function buildListItem(title, author, description, imageUrl) {
     detailsEl.append(summaryEl, imageEl, descriptionEl)
     liEl.append(detailsEl);
     return liEl;
+}
+
+function buildDetailsPaneGoogleBooks(item) {
+    const title = item.volumeInfo.title;
+    const subtitle = item.volumeInfo.subtitle;
+    const author = item.volumeInfo.authors?.join(', ') || '';
+    let imageUrl = item.volumeInfo.imageLinks?.thumbnail;
+    if (!imageUrl) {
+        imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
+    }
+    const description = item.volumeInfo.description;
+    const publishedDate = item.volumeInfo.publishedDate;
+    const buyLink = item.saleInfo?.buyLink;
+
+    const titleEl = document.createElement('h2');
+    titleEl.textContent = title;
+    let subtitleEl = '';
+    if (subtitle) {
+        subtitleEl = document.createElement('h3');
+        subtitleEl.textContent = subtitle;
+    }
+    const authorEl = document.createElement('p');
+    if (author) {
+        authorEl.textContent = author;
+    }
+    let imageEl = '';
+    if (imageUrl) {
+        imageEl = document.createElement('img');
+        imageEl.src = imageUrl;
+    }
+    const descriptionEl = document.createElement('p');
+    if (description) {
+        descriptionEl.textContent = description;
+    }
+    const publishDateEl = document.createElement('p');
+    if (publishedDate) {
+        publishDateEl.textContent = `Published: ${publishedDate}`;
+    }
+    const purchaseEl = document.createElement('p');
+    if (buyLink) {
+        const link = document.createElement('a');
+        link.href = buyLink;
+        link.textContent = `Purchase ${title}`;
+        purchaseEl.append(link);
+    }
+
+    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, publishDateEl, purchaseEl);
 }
