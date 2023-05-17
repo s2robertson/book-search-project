@@ -1,4 +1,7 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+.custom-width {
+    width: 300px;
+  }
 
+.image{
+    opacity: 0.8;
+}
