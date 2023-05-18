@@ -1,7 +1,9 @@
 const listItemRawData = [];
 
+// the search params, provided by index.html
 let unparsedParams = document.location.search;
 if (unparsedParams.startsWith('?')) {
+    // remove leading '?'
     unparsedParams = unparsedParams.slice(1);
 }
 unparsedParams = unparsedParams.split('&');
@@ -23,6 +25,7 @@ switch (searchSource) {
         break;
     case 'openlibrary':
         fetchFromOpenLibrary(parsedParams.q, parsedParams.type);
+        break;
 }
 
 function fetchFromGoogleBooks(searchQuery, searchType) {
@@ -42,6 +45,8 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
     })
     .then(data => {
         const listEl = document.createElement('ul');
+
+        // construct the list items
         data.items.forEach(item => {
             const title = item.volumeInfo.title;
             const author = item.volumeInfo.authors?.join(', ') || '';
@@ -54,7 +59,8 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
             listItem.dataset.listIndex = listItemRawData.length;
             listItemRawData.push(item);
             listEl.append(listItem);
-        })
+        });
+        // add a 'click' event listener to the whole li to display detailed data
         listEl.addEventListener('click', function(event) {
             const listItem = event.target.closest('li');
             const listIndex = listItem?.dataset.listIndex;
@@ -62,7 +68,8 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
                 const rawItem = listItemRawData[listIndex];
                 buildDetailsPaneGoogleBooks(rawItem);
             }
-        })
+        });
+
         document.getElementById('result-content').replaceChildren(listEl);
     })
 }
@@ -74,11 +81,9 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
     } else {
         fetchQuery = `q=${searchQuery}`;
     }
-    console.log(`fetchQuery = ${fetchQuery}`);
 
     fetch(`https://openlibrary.org/search.json?${fetchQuery}&limit=10`)     // to fetch more, use offset=...
     .then(result => {
-        console.log(result);
         if (!result.ok) {
             throw new Error(`Fetch failed: ${result}`);
         }
@@ -87,6 +92,7 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
     .then(data => {
         const listEl = document.createElement('ul');
 
+        // build the list items
         data.docs.forEach(doc => {
             const title = doc.title;
             const author = doc.author_name?.join(', ') || '';
@@ -100,6 +106,7 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
             listItemRawData.push(doc);
             listEl.append(listItemEl);
         });
+        // add a 'click' event listener to display more details
         listEl.addEventListener('click', function(event) {
             const listItem = event.target.closest('li');
             const listIndex = listItem?.dataset.listIndex;
@@ -134,6 +141,7 @@ function buildListItem(title, author, description, imageUrl) {
 }
 
 function buildDetailsPaneGoogleBooks(item) {
+    // extract details from the raw item
     const title = item.volumeInfo.title;
     const subtitle = item.volumeInfo.subtitle;
     const author = item.volumeInfo.authors?.join(', ') || '';
@@ -145,6 +153,7 @@ function buildDetailsPaneGoogleBooks(item) {
     const publishedDate = item.volumeInfo.publishedDate;
     const buyLink = item.saleInfo?.buyLink;
 
+    // build DOM elements for the details
     const titleEl = document.createElement('h2');
     titleEl.textContent = title;
     let subtitleEl = '';
@@ -181,6 +190,7 @@ function buildDetailsPaneGoogleBooks(item) {
 }
 
 function buildDetailsPaneOpenLibrary(doc) {
+    // extract details from the raw item
     const title = doc.title;
     const subtitle = doc.subtitle;
     const author = doc.author_name?.join(', ') || '';
@@ -193,6 +203,7 @@ function buildDetailsPaneOpenLibrary(doc) {
     const goodreadsId = doc.id_goodreads && doc.id_goodreads[0];
     const librarythingId = doc.id_librarything && doc.id_librarything[0];
 
+    // build DOM elements for each detail
     const titleEl = document.createElement('h2');
     titleEl.textContent = title;
     let subtitleEl = '';
