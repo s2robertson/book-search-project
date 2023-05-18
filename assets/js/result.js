@@ -3,6 +3,7 @@ const favouritesKey = 'book-search-favourites';
 const favourites = JSON.parse(localStorage.getItem(favouritesKey) || "{}");
 const removeFromFavouritesHTML = `<span class="favourited">&starf;</span> Remove from favourites`;
 const addToFavouritesHTML = '&star; Add to favourites';
+let page = 1;
 
 let unparsedParams = document.location.search;
 if (unparsedParams.startsWith('?')) {
@@ -38,7 +39,8 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
         fetchQuery = searchQuery;
     }
 
-    fetch(`https://www.googleapis.com/books/v1/volumes?q=${fetchQuery}`)
+    const startIndex = (page - 1) * 10; 
+    fetch(`https://www.googleapis.com/books/v1/volumes?q=${fetchQuery}&startIndex=${startIndex}`)
         .then(result => {
             if (!result.ok) {
                 throw new Error(`Fetch failed: ${result}`);
@@ -49,7 +51,7 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
             data.items.forEach(item => {
                 listItemRawData.push(item);
             });
-            buildUlFromRawDataGoogleBooks(0);   // this will need to be updated for fetching more items
+            buildUlFromRawDataGoogleBooks(startIndex);
         });
 }
 
@@ -94,9 +96,9 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
     } else {
         fetchQuery = `q=${searchQuery}`;
     }
-    console.log(`fetchQuery = ${fetchQuery}`);
 
-    fetch(`https://openlibrary.org/search.json?${fetchQuery}&limit=10`)
+    const startIndex = (page - 1) * 10; 
+    fetch(`https://openlibrary.org/search.json?${fetchQuery}&limit=10&offset=${startIndex}`)
         .then(result => {
             console.log(result);
             if (!result.ok) {
@@ -109,18 +111,16 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
                 listItemRawData.push(doc);
             });
 
-            buildUlFromRawDataOpenLibrary(0);   // this will need to change to fetch more
+            buildUlFromRawDataOpenLibrary(startIndex);
         });
 }
 
 function buildUlFromRawDataOpenLibrary(startIndex = 0) {
-    console.log('rebuilding...')
     const listEl = document.getElementById('result-list');
     if (startIndex === 0) {
         listEl.innerHTML = '';
     }
 
-    console.log(`startIndex = ${startIndex}, length = ${listItemRawData.length}`);
     for (let i = startIndex; i < listItemRawData.length; i++) {
         const doc = listItemRawData[i];
 
@@ -367,7 +367,7 @@ function hideFavouritesList() {
     showFavouritesButton.textContent = 'Show Favourites';
     showFavouritesButton.onclick = showFavouritesList;
 
-    if (unparsedParams.source === 'googlebooks') {
+    if (parsedParams.source === 'googlebooks') {
         buildUlFromRawDataGoogleBooks(0);
     } else {
         buildUlFromRawDataOpenLibrary(0);
@@ -401,4 +401,13 @@ function closeModal() {
           closeModal();
         }
     });
+});
+
+document.getElementById('load-more-button').addEventListener('click', function () {
+    page++; 
+    if (searchSource === 'googlebooks') {
+        fetchFromGoogleBooks(parsedParams.q, parsedParams.type);
+    } else if (searchSource === 'openlibrary') {
+        fetchFromOpenLibrary(parsedParams.q, parsedParams.type);
+    }
 });
