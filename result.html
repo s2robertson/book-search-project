@@ -43,13 +43,13 @@
           <div class="control">
             <div class="select is-primary is-fullwidth">
               <select id="search-source">
-                      <option>Please Select a Source</option>
-                      <option value="googlebooks">Search from Google Books</option>
-                      <option value="openlibrary">Search from Open Library</option>
-                  </select>
-              </div>   
+                <option>Please Select a Source</option>
+                <option value="googlebooks">Search from Google Books</option>
+                <option value="openlibrary">Search from Open Library</option>
+              </select>
+            </div>
           </div>
-      </div>
+        </div>
 
         <div class="field">
           <div class="control">
@@ -67,15 +67,17 @@
       <div id="result-content"></div>
     </div>
 
-    
+
   </div>
   <div id="details-modal" class="modal">
-      <div class="modal-background"></div>
-      <div class="modal-content">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="box">
         <div id="details-box"></div>
       </div>
-      <button class="modal-close is-large" aria-label="close"></button>
     </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+  </div>
   <script src="./assets/js/result.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
