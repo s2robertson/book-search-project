@@ -1,4 +1,5 @@
 const listItemRawData = new Map();
+let page = 1;
 
 let unparsedParams = document.location.search;
 if (unparsedParams.startsWith('?')) {
@@ -34,7 +35,8 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
         fetchQuery = searchQuery;
     }
 
-    fetch(`https://www.googleapis.com/books/v1/volumes?q=${fetchQuery}`)
+    const startIndex = (page - 1) * 10; 
+    fetch(`https://www.googleapis.com/books/v1/volumes?q=${fetchQuery}&startIndex=${startIndex}`)
         .then(result => {
             if (!result.ok) {
                 throw new Error(`Fetch failed: ${result}`);
@@ -77,7 +79,8 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
     }
     console.log(`fetchQuery = ${fetchQuery}`);
 
-    fetch(`https://openlibrary.org/search.json?${fetchQuery}&limit=10`)
+    const startIndex = (page - 1) * 10; 
+    fetch(`https://openlibrary.org/search.json?${fetchQuery}&limit=10&page=${startIndex}`)
         .then(result => {
             console.log(result);
             if (!result.ok) {
@@ -275,3 +278,11 @@ function buildModalContent(titleEl, subtitleEl, authorEl, descriptionEl, otherSi
       closeModal();
     }
   });
+  document.getElementById('load-more-button').addEventListener('click', function () {
+    page++; 
+    if (searchSource === 'googlebooks') {
+        fetchFromGoogleBooks(parsedParams.q, parsedParams.type);
+    } else if (searchSource === 'openlibrary') {
+        fetchFromOpenLibrary(parsedParams.q, parsedParams.type);
+    }
+});
