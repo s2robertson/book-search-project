@@ -283,3 +283,28 @@ function buildDetailsPaneOpenLibrary(doc) {
 
     document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, firstPublishDateEl, otherSitesListEl, favouritesButton);
 }
+
+function buildFavouritesList() {
+    const favouritesList = document.createElement('ul');
+    for (const key in favourites) {
+        const listItem = document.createElement('li');
+        const [type, data] = favourites[key];
+        let title;
+        let author;
+        let eventHandler;
+        
+        if (type == 'googlebooks') {
+            title = data.volumeInfo.title;
+            author = data.volumeInfo.authors?.join(', ') || '';
+            eventHandler = () => buildDetailsPaneGoogleBooks(data);
+        } else {
+            title = data.title;
+            author = data.author_name?.join(', ') || '';
+            eventHandler = () => buildDetailsPaneOpenLibrary(data);
+        }
+
+        listItem.innerHTML = `<strong>${title}</strong> ${author}`;
+        listItem.addEventListener('click', eventHandler);
+        favouritesList.append(listItem);
+    }
+}
