@@ -1,4 +1,8 @@
-const listItemRawData = new Map();
+const listItemRawData = [];
+const favouritesKey = 'book-search-favourites';
+const favourites = JSON.parse(localStorage.getItem(favouritesKey) || "{}");
+const removeFromFavouritesHTML = `<span class="favourited">&starf;</span> Remove from favourites`;
+const addToFavouritesHTML = '&star; Add to favourites';
 let page = 1;
 
 let unparsedParams = document.location.search;
@@ -44,30 +48,45 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
             return result.json();
         })
         .then(data => {
-            const listEl = document.createElement('ul');
             data.items.forEach(item => {
-                const title = item.volumeInfo.title;
-                const author = item.volumeInfo.authors?.join(', ') || '';
-                const description = item.volumeInfo.description;
-                let imageUrl = item.volumeInfo.imageLinks?.thumbnail;
-                if (!imageUrl) {
-                    imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
-                }
-                const listItem = buildListItem(title, author, description, imageUrl);
-                listItem.dataset.rawItemId = item.id;
-                listItemRawData.set(item.id, item);
-                listEl.append(listItem);
+                listItemRawData.push(item);
             });
-            listEl.addEventListener('click', function (event) {
-                const listItem = event.target.closest('li');
-                const rawItemId = listItem?.dataset.rawItemId;
-                if (rawItemId) {
-                    const rawItem = listItemRawData.get(rawItemId);
-                    buildDetailsPaneGoogleBooks(rawItem);
-                }
-            });
-            document.getElementById('result-content').replaceChildren(listEl);
+            buildUlFromRawDataGoogleBooks(startIndex);
         });
+}
+
+function buildUlFromRawDataGoogleBooks(startIndex = 0) {
+    const listEl = document.getElementById('result-list');
+    if (startIndex === 0) {
+        listEl.innerHTML = '';
+    }
+
+    for (let i = startIndex; i < listItemRawData.length; i++) {
+        const item = listItemRawData[i];
+
+        const title = item.volumeInfo.title;
+        const author = item.volumeInfo.authors?.join(', ') || '';
+        const description = item.volumeInfo.description;
+        let imageUrl = item.volumeInfo.imageLinks?.thumbnail;
+        if (!imageUrl) {
+            imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
+        }
+        const listItem = buildListItem(title, author, description, imageUrl);
+        listItem.dataset.listIndex = i;
+        
+        listEl.append(listItem);
+    }
+
+    // using the onclick attribute erases any previous event listeners
+    listEl.onclick = function (event) {
+        const listItem = event.target.closest('li');
+        const listIndex = listItem?.dataset.listIndex;
+        if (listIndex != undefined && listIndex != null) {
+            const rawItem = listItemRawData[listIndex];
+            buildDetailsPaneGoogleBooks(rawItem);
+            openModal();
+        }
+    };
 }
 
 function fetchFromOpenLibrary(searchQuery, searchType) {
@@ -77,10 +96,9 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
     } else {
         fetchQuery = `q=${searchQuery}`;
     }
-    console.log(`fetchQuery = ${fetchQuery}`);
 
     const startIndex = (page - 1) * 10; 
-    fetch(`https://openlibrary.org/search.json?${fetchQuery}&limit=10&page=${startIndex}`)
+    fetch(`https://openlibrary.org/search.json?${fetchQuery}&limit=10&offset=${startIndex}`)
         .then(result => {
             console.log(result);
             if (!result.ok) {
@@ -88,42 +106,57 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
             }
             return result.json();
         })
-        .then(data => {
-            const listEl = document.createElement('ul');
-
+        .then(data => {            
             data.docs.forEach(doc => {
-                const title = doc.title;
-                const author = doc.author_name?.join(', ') || '';
-                let description = '';
-                if (doc.subject) {
-                    description = `Subjects: ${doc.subject.join(', ')}`;
-                }
-                const imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
-                const listItem = buildListItem(title, author, description, imageUrl);
-                listItem.dataset.rawItemId = doc.key;
-                listItemRawData.set(doc.key, doc);
-                listEl.append(listItem);
+                listItemRawData.push(doc);
             });
 
-            listEl.addEventListener('click', function (event) {
-                const listItem = event.target.closest('li');
-                const rawItemId = listItem?.dataset.rawItemId;
-                if (rawItemId) {
-                    const rawItem = listItemRawData.get(rawItemId);
-                    buildDetailsPaneOpenLibrary(rawItem);
-                }
-            });
-
-            document.getElementById('result-content').replaceChildren(listEl);
+            buildUlFromRawDataOpenLibrary(startIndex);
         });
+}
+
+function buildUlFromRawDataOpenLibrary(startIndex = 0) {
+    const listEl = document.getElementById('result-list');
+    if (startIndex === 0) {
+        listEl.innerHTML = '';
+    }
+
+    for (let i = startIndex; i < listItemRawData.length; i++) {
+        const doc = listItemRawData[i];
+
+        const title = doc.title;
+        const author = doc.author_name?.join(', ') || '';
+        let description = '';
+        if (doc.subject) {
+            description = `Subjects: ${doc.subject.join(', ')}`;
+        }
+        const imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+        const listItem = buildListItem(title, author, description, imageUrl);
+        listItem.dataset.listIndex = i;
+        
+        listEl.append(listItem);
+    }
+
+    // use the onclick attribute to erase outstanding event listeners
+    listEl.onclick = function (event) {
+        const listItem = event.target.closest('li');
+        const listIndex = listItem?.dataset.listIndex;
+        if (listIndex != undefined && listIndex != null) {
+            const rawItem = listItemRawData[listIndex];
+            buildDetailsPaneOpenLibrary(rawItem);
+            openModal();
+        }
+    };
 }
 
 function buildListItem(title, author, description, imageUrl) {
     const listItem = document.createElement('li');
 
-    const thumbnailImg = document.createElement('img');
-    thumbnailImg.src = imageUrl;
-    listItem.appendChild(thumbnailImg);
+    if (imageUrl) {
+        const thumbnailImg = document.createElement('img');
+        thumbnailImg.src = imageUrl;
+        listItem.appendChild(thumbnailImg);
+    }
 
     const titleEl = document.createElement('h2');
     titleEl.textContent = title;
@@ -184,7 +217,32 @@ function buildDetailsPaneGoogleBooks(item) {
         purchaseEl.append(link);
     }
 
-    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, publishDateEl, purchaseEl);
+    const itemFavouritesKey = "gb" + item.id;
+    const initialFavouriteData = favourites[itemFavouritesKey];
+    const favouritesButton = document.createElement('button');
+    if (initialFavouriteData) {
+        favouritesButton.innerHTML = removeFromFavouritesHTML;
+    } else {
+        favouritesButton.innerHTML = addToFavouritesHTML;
+    }
+    favouritesButton.classList.add('button');
+
+    favouritesButton.addEventListener('click', () => {
+        const currFavouriteData = favourites[itemFavouritesKey];
+        if (currFavouriteData) {
+            delete favourites[itemFavouritesKey];
+            favouritesButton.innerHTML = addToFavouritesHTML;
+        } else {
+            favourites[itemFavouritesKey] = {
+                type: 'googlebooks',
+                data: item
+            };
+            favouritesButton.innerHTML = removeFromFavouritesHTML;
+        }
+        localStorage.setItem(favouritesKey, JSON.stringify(favourites));
+    });
+
+    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, publishDateEl, purchaseEl, favouritesButton);
 }
 
 function buildDetailsPaneOpenLibrary(doc) {
@@ -236,49 +294,116 @@ function buildDetailsPaneOpenLibrary(doc) {
         otherSitesListEl.append(librarythingListEl);
     }
 
-    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, firstPublishDateEl, otherSitesListEl);
+    const itemFavouritesKey = "ol" + doc.key;
+    const initialFavouriteData = favourites[itemFavouritesKey];
+    const favouritesButton = document.createElement('button');
+    if (initialFavouriteData) {
+        favouritesButton.innerHTML = removeFromFavouritesHTML;
+    } else {
+        favouritesButton.innerHTML = addToFavouritesHTML;
+    }
+    favouritesButton.classList.add('button');
+    
+    favouritesButton.addEventListener('click', () => {
+        const currFavouriteData = favourites[itemFavouritesKey];
+        if (currFavouriteData) {
+            delete favourites[itemFavouritesKey];
+            favouritesButton.innerHTML = addToFavouritesHTML;
+        } else {
+            favourites[itemFavouritesKey] = {
+                type: 'openlibrary',
+                data: doc
+            };
+            favouritesButton.innerHTML = removeFromFavouritesHTML;
+        }
+        localStorage.setItem(favouritesKey, JSON.stringify(favourites));
+    });
+
+    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, firstPublishDateEl, otherSitesListEl, favouritesButton);
 }
+
+function showFavouritesList() {
+    const favouritesList = [];
+    for (const key in favourites) {
+        const listItem = document.createElement('li');
+        const { type, data } = favourites[key];
+        let title;
+        let author;
+        let eventHandler;
+        
+        if (type == 'googlebooks') {
+            title = data.volumeInfo.title;
+            author = data.volumeInfo.authors?.join(', ') || '';
+            eventHandler = function() {
+                buildDetailsPaneGoogleBooks(data);
+                openModal();
+            }
+        } else {
+            title = data.title;
+            author = data.author_name?.join(', ') || '';
+            eventHandler = function() {
+                buildDetailsPaneOpenLibrary(data);
+                openModal();
+            }
+        }
+
+        listItem.innerHTML = `<strong>${title}</strong> ${author}`;
+        listItem.addEventListener('click', eventHandler);
+        favouritesList.push(listItem);
+    }
+
+    document.querySelector('#result-content h2').textContent = 'Favourites'
+    document.getElementById('result-list').replaceChildren(...favouritesList);
+    const showFavouritesButton = document.getElementById('show-favourites-button');
+    showFavouritesButton.textContent = 'Hide Favourites';
+    showFavouritesButton.onclick = hideFavouritesList;
+}
+// Showing the favourites is the page default
+document.getElementById('show-favourites-button').onclick = showFavouritesList;
+
+function hideFavouritesList() {
+    document.querySelector('#result-content h2').textContent = 'Favourites'
+    const showFavouritesButton = document.getElementById('show-favourites-button');
+    showFavouritesButton.textContent = 'Show Favourites';
+    showFavouritesButton.onclick = showFavouritesList;
+
+    if (parsedParams.source === 'googlebooks') {
+        buildUlFromRawDataGoogleBooks(0);
+    } else {
+        buildUlFromRawDataOpenLibrary(0);
+    }
+}
+
 function buildModalContent(titleEl, subtitleEl, authorEl, descriptionEl, publishDateEl, purchaseEl) {
     const modalContent = document.getElementById('details-box');
     modalContent.replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, publishDateEl, purchaseEl);
-  }
+}
 
 function buildModalContent(titleEl, subtitleEl, authorEl, descriptionEl, otherSitesListEl) {
     const modalContent = document.getElementById('details-content');
     modalContent.replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, otherSitesListEl);
-  }
+}
   
   
-  function openModal() {
+function openModal() {
     const modal = document.getElementById('details-modal');
     modal.classList.add('is-active');
-  }
+}
   
-  function closeModal() {
+function closeModal() {
     const modal = document.getElementById('details-modal');
     modal.classList.remove('is-active');
-  }
-  
-  document.addEventListener('click', function(event) {
-    const listItem = event.target.closest('li');
-    const rawItemId = listItem?.dataset.rawItemId;
-    if (rawItemId) {
-      const rawItem = listItemRawData.get(rawItemId);
-      if (searchSource === 'googlebooks') {
-        buildDetailsPaneGoogleBooks(rawItem);
-      } else if (searchSource === 'openlibrary') {
-        buildDetailsPaneOpenLibrary(rawItem);
-      }
-      openModal();
-    }
-  });
-  
-  document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('modal-close') || event.target.classList.contains('modal-background')) {
-      closeModal();
-    }
-  });
-  document.getElementById('load-more-button').addEventListener('click', function () {
+}
+    
+(document.querySelectorAll('.modal-close, .modal-background') || []).forEach(closeElem => {
+    closeElem.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal-close') || event.target.classList.contains('modal-background')) {
+          closeModal();
+        }
+    });
+});
+
+document.getElementById('load-more-button').addEventListener('click', function () {
     page++; 
     if (searchSource === 'googlebooks') {
         fetchFromGoogleBooks(parsedParams.q, parsedParams.type);
