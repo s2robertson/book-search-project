@@ -114,11 +114,13 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
 }
 
 function buildUlFromRawDataOpenLibrary(startIndex = 0) {
+    console.log('rebuilding...')
     const listEl = document.getElementById('result-list');
     if (startIndex === 0) {
         listEl.innerHTML = '';
     }
 
+    console.log(`startIndex = ${startIndex}, length = ${listItemRawData.length}`);
     for (let i = startIndex; i < listItemRawData.length; i++) {
         const doc = listItemRawData[i];
 
@@ -145,8 +147,6 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
             openModal();
         }
     };
-
-    document.getElementById('result-content').replaceChildren(listEl);
 }
 
 function buildListItem(title, author, description, imageUrl) {
@@ -322,8 +322,8 @@ function buildDetailsPaneOpenLibrary(doc) {
     document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, firstPublishDateEl, otherSitesListEl, favouritesButton);
 }
 
-function buildFavouritesList() {
-    const favouritesList = document.createElement('ul');
+function showFavouritesList() {
+    const favouritesList = [];
     for (const key in favourites) {
         const listItem = document.createElement('li');
         const { type, data } = favourites[key];
@@ -349,7 +349,28 @@ function buildFavouritesList() {
 
         listItem.innerHTML = `<strong>${title}</strong> ${author}`;
         listItem.addEventListener('click', eventHandler);
-        favouritesList.append(listItem);
+        favouritesList.push(listItem);
+    }
+
+    document.querySelector('#result-content h2').textContent = 'Favourites'
+    document.getElementById('result-list').replaceChildren(...favouritesList);
+    const showFavouritesButton = document.getElementById('show-favourites-button');
+    showFavouritesButton.textContent = 'Hide Favourites';
+    showFavouritesButton.onclick = hideFavouritesList;
+}
+// Showing the favourites is the page default
+document.getElementById('show-favourites-button').onclick = showFavouritesList;
+
+function hideFavouritesList() {
+    document.querySelector('#result-content h2').textContent = 'Favourites'
+    const showFavouritesButton = document.getElementById('show-favourites-button');
+    showFavouritesButton.textContent = 'Show Favourites';
+    showFavouritesButton.onclick = showFavouritesList;
+
+    if (unparsedParams.source === 'googlebooks') {
+        buildUlFromRawDataGoogleBooks(0);
+    } else {
+        buildUlFromRawDataOpenLibrary(0);
     }
 }
 
