@@ -54,7 +54,11 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
 }
 
 function buildUlFromRawDataGoogleBooks(startIndex = 0) {
-    const listEl = document.createElement('ul');
+    const listEl = document.getElementById('result-list');
+    if (startIndex === 0) {
+        listEl.innerHTML = '';
+    }
+
     for (let i = startIndex; i < listItemRawData.length; i++) {
         const item = listItemRawData[i];
 
@@ -71,7 +75,8 @@ function buildUlFromRawDataGoogleBooks(startIndex = 0) {
         listEl.append(listItem);
     }
 
-    listEl.addEventListener('click', function (event) {
+    // using the onclick attribute erases any previous event listeners
+    listEl.onclick = function (event) {
         const listItem = event.target.closest('li');
         const listIndex = listItem?.dataset.listIndex;
         if (listIndex != undefined && listIndex != null) {
@@ -79,9 +84,7 @@ function buildUlFromRawDataGoogleBooks(startIndex = 0) {
             buildDetailsPaneGoogleBooks(rawItem);
             openModal();
         }
-    });
-
-    document.getElementById('result-content').replaceChildren(listEl);
+    };
 }
 
 function fetchFromOpenLibrary(searchQuery, searchType) {
@@ -106,15 +109,18 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
                 listItemRawData.push(doc);
             });
 
-            buildUlFromRawDataOpenLibrary(0);
+            buildUlFromRawDataOpenLibrary(0);   // this will need to change to fetch more
         });
 }
 
 function buildUlFromRawDataOpenLibrary(startIndex = 0) {
-    const listEl = document.createElement('ul');
+    const listEl = document.getElementById('result-list');
+    if (startIndex === 0) {
+        listEl.innerHTML = '';
+    }
 
     for (let i = startIndex; i < listItemRawData.length; i++) {
-        const doc = listItemRawData[0];
+        const doc = listItemRawData[i];
 
         const title = doc.title;
         const author = doc.author_name?.join(', ') || '';
@@ -129,7 +135,8 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
         listEl.append(listItem);
     }
 
-    listEl.addEventListener('click', function (event) {
+    // use the onclick attribute to erase outstanding event listeners
+    listEl.onclick = function (event) {
         const listItem = event.target.closest('li');
         const listIndex = listItem?.dataset.listIndex;
         if (listIndex != undefined && listIndex != null) {
@@ -137,7 +144,7 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
             buildDetailsPaneOpenLibrary(rawItem);
             openModal();
         }
-    });
+    };
 
     document.getElementById('result-content').replaceChildren(listEl);
 }
