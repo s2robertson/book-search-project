@@ -1,4 +1,8 @@
 const listItemRawData = new Map();
+const favouritesKey = 'book-search-favourites';
+const favourites = JSON.parse(localStorage.getItem(favouritesKey) || "{}");
+const removeFromFavouritesHTML = `<span class="favourited">&starf;</span> Remove from favourites`;
+const addToFavouritesHTML = '&star; Add to favourites';
 
 let unparsedParams = document.location.search;
 if (unparsedParams.startsWith('?')) {
@@ -177,7 +181,31 @@ function buildDetailsPaneGoogleBooks(item) {
         purchaseEl.append(link);
     }
 
-    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, publishDateEl, purchaseEl);
+    const itemFavouritesKey = "gb" + item.id;
+    const initialFavouriteData = favourites[itemFavouritesKey];
+    const favouritesButton = document.createElement('button');
+    if (initialFavouriteData) {
+        favouritesButton.innerHTML = removeFromFavouritesHTML;
+    } else {
+        favouritesButton.innerHTML = addToFavouritesHTML;
+    }
+
+    favouritesButton.addEventListener('click', () => {
+        const currFavouriteData = favourites[itemFavouritesKey];
+        if (currFavouriteData) {
+            delete favourites[itemFavouritesKey];
+            favouritesButton.innerHTML = addToFavouritesHTML;
+        } else {
+            favourites[itemFavouritesKey] = {
+                type: 'googlebooks',
+                data: item
+            };
+            favouritesButton.innerHTML = removeFromFavouritesHTML;
+        }
+        localStorage.setItem(favouritesKey, JSON.stringify(favourites));
+    });
+
+    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, publishDateEl, purchaseEl, favouritesButton);
 }
 
 function buildDetailsPaneOpenLibrary(doc) {
@@ -229,5 +257,29 @@ function buildDetailsPaneOpenLibrary(doc) {
         otherSitesListEl.append(librarythingListEl);
     }
 
-    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, firstPublishDateEl, otherSitesListEl);
+    const itemFavouritesKey = "ol" + doc.key;
+    const initialFavouriteData = favourites[itemFavouritesKey];
+    const favouritesButton = document.createElement('button');
+    if (initialFavouriteData) {
+        favouritesButton.innerHTML = removeFromFavouritesHTML;
+    } else {
+        favouritesButton.innerHTML = addToFavouritesHTML;
+    }
+    
+    favouritesButton.addEventListener('click', () => {
+        const currFavouriteData = favourites[itemFavouritesKey];
+        if (currFavouriteData) {
+            delete favourites[itemFavouritesKey];
+            favouritesButton.innerHTML = addToFavouritesHTML;
+        } else {
+            favourites[itemFavouritesKey] = {
+                type: 'openlibrary',
+                data: doc
+            };
+            favouritesButton.innerHTML = removeFromFavouritesHTML;
+        }
+        localStorage.setItem(favouritesKey, JSON.stringify(favourites));
+    });
+
+    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, firstPublishDateEl, otherSitesListEl, favouritesButton);
 }
