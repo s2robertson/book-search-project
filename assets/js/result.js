@@ -121,7 +121,7 @@ function buildUlFromRawDataGoogleBooks(startIndex = 0) {
         if (!imageUrl) {
             imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
         }
-        const listItem = buildListItem(title, author, description, imageUrl);
+        const listItem = buildListItem(title, author, imageUrl);
         listItem.dataset.listIndex = i;
         
         listEl.append(listItem);
@@ -186,7 +186,7 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
             description = `Subjects: ${doc.subject.join(', ')}`;
         }
         const imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
-        const listItem = buildListItem(title, author, description, imageUrl);
+        const listItem = buildListItem(title, author, imageUrl);
         listItem.dataset.listIndex = i;
         
         listEl.append(listItem);
@@ -204,7 +204,7 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
     };
 }
 
-function buildListItem(title, author, description, imageUrl) {
+function buildListItem(title, author, imageUrl) {
     const listItem = document.createElement('li');
 
     if (imageUrl) {
@@ -221,9 +221,9 @@ function buildListItem(title, author, description, imageUrl) {
     authorEl.textContent = `Author(s): ${author}`;
     listItem.appendChild(authorEl);
 
-    const descriptionEl = document.createElement('p');
-    descriptionEl.textContent = description;
-    listItem.appendChild(descriptionEl);
+    // const descriptionEl = document.createElement('p');
+    // descriptionEl.textContent = description;
+    // listItem.appendChild(descriptionEl);
 
     return listItem;
 }
