@@ -12,38 +12,31 @@
 
 <!-- Body -->
 
-<body class="hero is-fullheight has-background-primary-light">
+<body background="assets/images/books online.jpg" class="hero is-fullheight has-background-primary-light">
 
-    <section class="section hero-body is-flex is-align-items-center custom-padding">
+    <section class="hero-body is-flex is-align-items-center mb-1 custom-padding">
 
         <div class="container has-text-centered is-flex-direction-column is-justify-content-center ">
 
-
-            <!-- Image -->
-
-            <figure class="image is-3by1">
-                <img src="./assets/images/books online.jpg">
-            </figure>
-
             <!-- Heading -->
 
-            <h1 class="title has-text-primary has-text-weight-bold column is-size-2">
-                Book Search App
+            <h1 class="title has-text-primary has-text-weight-bold column is-size-2 mb-1">
+                Book Search
             </h1>
 
             <!-- Form input -->
 
             <form>
 
-                <input class="input custom-width" type="text" placeholder="Text input">
+                <input class="input is-primary custom-width mb-3" type="text" placeholder="Search by Title/Author">
 
-                <!-- Options -->
+                <!-- Options- Category 1 -->
 
-                <div class="field section">
+                <div class="field">
                     <div class="control">
                         <div class="select is-primary">
                             <select class="custom-width">
-                                <option>Please Select</option>
+                                <option>Please Select a Category</option>
                                 <option value="subject">Title/Subject</option>
                                 <option value="author">Author</option>
                             </select>
@@ -51,24 +44,27 @@
                     </div>
                 </div>
 
-                <div>
-                    <select name="search-source" id="search-source">
-                        <option value="googlebooks">Search from Google Books</option>
-                        <option value="openlibrary">Search from Open Library</option>
-                    </select>
+                <!-- Options- Category 2 -->
+
+                <div class="field">
+                    <div class="control">
+                        <div class="select is-primary mb-1">
+                            <select name="search-source" class="custom-width" id="search-source">
+                                <option>Please Select a Source</option>
+                                <option value="googlebooks">Search from Google Books</option>
+                                <option value="openlibrary">Search from Open Library</option>
+                            </select>
+                        </div>   
+                    </div>
                 </div>
-                <button>
-                    Search
-                </button>
+
+                <!-- Button -->
+
+                <div class="buttons column">
+                    <button class="button is-primary custom-width">Search</button>
+                </div>
 
             </form>
-
-            <!-- Button -->
-
-            <div class="buttons column">
-                <button class="button is-primary custom-width">Search</button>
-            </div>
-
 
         </div>
     </section>
