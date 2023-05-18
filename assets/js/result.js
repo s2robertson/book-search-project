@@ -1,4 +1,4 @@
-const listItemRawData = [];
+let listItemRawData = [];
 const favouritesKey = 'book-search-favourites';
 const favourites = JSON.parse(localStorage.getItem(favouritesKey) || "{}");
 const removeFromFavouritesHTML = `<span class="favourited">&starf;</span> Remove from favourites`;
@@ -16,20 +16,64 @@ unparsedParams.forEach(pair => {
     parsedParams[key] = value;
 });
 
+const searchQueryEl = document.getElementById('search-query');
+searchQueryEl.value = parsedParams.q || '';
+const searchTypeEl = document.getElementById('search-type');
 if (!parsedParams.type) {
-    throw new Error(`Missing search type: ${JSON.stringify(parsedParams)}`);
-} else if (!parsedParams.q) {
-    throw new Error(`Missing search term: ${JSON.stringify(parsedParams)}`);
+    parsedParams.type = 'subject';
 }
-const searchSource = parsedParams.source || 'googlebooks';
-switch (searchSource) {
-    case 'googlebooks':
-        fetchFromGoogleBooks(parsedParams.q, parsedParams.type);
-        break;
-    case 'openlibrary':
-        fetchFromOpenLibrary(parsedParams.q, parsedParams.type);
-        break;
+searchTypeEl.value = parsedParams.type;
+const searchSourceEl = document.getElementById('search-source');
+if (!parsedParams.source) {
+    parsedParams.source = 'googlebooks';
 }
+searchSourceEl.value = parsedParams.source;
+const loadMoreButton = document.getElementById('load-more-button');
+performSearch();
+
+function performSearch() {
+    if (!parsedParams.q) {
+        searchQueryEl.classList.remove('is-primary');
+        searchQueryEl.classList.add('is-danger');
+        return;
+    }
+    searchQueryEl.classList.remove('is-danger');
+    searchQueryEl.classList.add('is-primary');
+
+    const searchSource = parsedParams.source || 'googlebooks';
+    switch (searchSource) {
+        case 'googlebooks':
+            fetchFromGoogleBooks(parsedParams.q, parsedParams.type);
+            break;
+        case 'openlibrary':
+            fetchFromOpenLibrary(parsedParams.q, parsedParams.type);
+            break;
+    }
+}
+
+function handleNewSearch(event) {
+    event.preventDefault();
+    const searchQueryValue = searchQueryEl.value;
+    const searchTypeValue = searchTypeEl.value;
+    const searchSourceValue = searchSourceEl.value;
+
+    if (!searchQueryValue.trim()) {
+        searchQueryEl.classList.remove('is-primary');
+        searchQueryEl.classList.add('is-danger');
+        return;
+    }
+    searchQueryEl.classList.remove('is-danger');
+    searchQueryEl.classList.add('is-primary');
+
+    parsedParams.q = searchQueryValue;
+    parsedParams.type = searchTypeValue;
+    parsedParams.source = searchSourceValue;
+    listItemRawData = [];
+    page = 1;
+    performSearch();
+}
+const searchForm = document.getElementById('search-form');
+searchForm.addEventListener('submit', handleNewSearch);
 
 function fetchFromGoogleBooks(searchQuery, searchType) {
     let fetchQuery = '';
@@ -52,6 +96,12 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
                 listItemRawData.push(item);
             });
             buildUlFromRawDataGoogleBooks(startIndex);
+
+            if (listItemRawData.length < data.totalItems) {
+                loadMoreButton.removeAttribute('disabled');
+            } else {
+                loadMoreButton.setAttribute('disabled', true);
+            }
         });
 }
 
@@ -100,7 +150,6 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
     const startIndex = (page - 1) * 10; 
     fetch(`https://openlibrary.org/search.json?${fetchQuery}&limit=10&offset=${startIndex}`)
         .then(result => {
-            console.log(result);
             if (!result.ok) {
                 throw new Error(`Fetch failed: ${result}`);
             }
@@ -112,6 +161,12 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
             });
 
             buildUlFromRawDataOpenLibrary(startIndex);
+
+            if (listItemRawData.length < data.numFound) {
+                loadMoreButton.removeAttribute('disabled');
+            } else {
+                loadMoreButton.setAttribute('disabled', true);
+            }
         });
 }
 
@@ -357,6 +412,7 @@ function showFavouritesList() {
     const showFavouritesButton = document.getElementById('show-favourites-button');
     showFavouritesButton.textContent = 'Hide Favourites';
     showFavouritesButton.onclick = hideFavouritesList;
+    loadMoreButton.style.display = 'none';
 }
 // Showing the favourites is the page default
 document.getElementById('show-favourites-button').onclick = showFavouritesList;
@@ -372,6 +428,7 @@ function hideFavouritesList() {
     } else {
         buildUlFromRawDataOpenLibrary(0);
     }
+    loadMoreButton.style.display = '';
 }
 
 function buildModalContent(titleEl, subtitleEl, authorEl, descriptionEl, publishDateEl, purchaseEl) {
@@ -403,11 +460,11 @@ function closeModal() {
     });
 });
 
-document.getElementById('load-more-button').addEventListener('click', function () {
+loadMoreButton.addEventListener('click', function () {
     page++; 
-    if (searchSource === 'googlebooks') {
+    if (parsedParams.source === 'googlebooks') {
         fetchFromGoogleBooks(parsedParams.q, parsedParams.type);
-    } else if (searchSource === 'openlibrary') {
+    } else if (searchSourceEl === 'openlibrary') {
         fetchFromOpenLibrary(parsedParams.q, parsedParams.type);
     }
 });
