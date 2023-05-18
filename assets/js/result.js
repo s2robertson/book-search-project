@@ -1,4 +1,4 @@
-const listItemRawData = new Map();
+const listItemRawData = [];
 
 let unparsedParams = document.location.search;
 if (unparsedParams.startsWith('?')) {
@@ -51,15 +51,15 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
                 imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
             }
             const listItem = buildListItem(title, author, description, imageUrl);
-            listItem.dataset.rawItemId = item.id;
-            listItemRawData.set(item.id, item);
+            listItem.dataset.listIndex = listItemRawData.length;
+            listItemRawData.push(item);
             listEl.append(listItem);
         })
         listEl.addEventListener('click', function(event) {
             const listItem = event.target.closest('li');
-            const rawItemId = listItem?.dataset.rawItemId;
-            if (rawItemId) {
-                const rawItem = listItemRawData.get(rawItemId);
+            const listIndex = listItem?.dataset.listIndex;
+            if (listIndex != undefined && listIndex != null) {
+                const rawItem = listItemRawData[listIndex];
                 buildDetailsPaneGoogleBooks(rawItem);
             }
         })
@@ -96,15 +96,15 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
             }
             const imageUrl = '';
             const listItemEl = buildListItem(title, author, description, imageUrl);
-            listItemEl.dataset.rawItemId = doc.key;
-            listItemRawData.set(doc.key, doc);
+            listItemEl.dataset.listIndex = listItemRawData.length;
+            listItemRawData.push(doc);
             listEl.append(listItemEl);
         });
         listEl.addEventListener('click', function(event) {
             const listItem = event.target.closest('li');
-            const rawItemId = listItem?.dataset.rawItemId;
-            if (rawItemId) {
-                const rawItem = listItemRawData.get(rawItemId);
+            const listIndex = listItem?.dataset.listIndex;
+            if (listIndex != undefined && listIndex != null) {
+                const rawItem = listItemRawData[listIndex];
                 buildDetailsPaneOpenLibrary(rawItem);
             }
         })
