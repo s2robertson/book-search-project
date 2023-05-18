@@ -46,31 +46,42 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
             return result.json();
         })
         .then(data => {
-            const listEl = document.createElement('ul');
             data.items.forEach(item => {
-                const title = item.volumeInfo.title;
-                const author = item.volumeInfo.authors?.join(', ') || '';
-                const description = item.volumeInfo.description;
-                let imageUrl = item.volumeInfo.imageLinks?.thumbnail;
-                if (!imageUrl) {
-                    imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
-                }
-                const listItem = buildListItem(title, author, description, imageUrl);
-                listItem.dataset.listIndex = listItemRawData.length;
                 listItemRawData.push(item);
-                listEl.append(listItem);
             });
-            listEl.addEventListener('click', function (event) {
-                const listItem = event.target.closest('li');
-                const listIndex = listItem?.dataset.listIndex;
-                if (listIndex != undefined && listIndex != null) {
-                    const rawItem = listItemRawData[listIndex];
-                    buildDetailsPaneGoogleBooks(rawItem);
-                    openModal();
-                }
-            });
-            document.getElementById('result-content').replaceChildren(listEl);
+            buildUlFromRawDataGoogleBooks(0);   // this will need to be updated for fetching more items
         });
+}
+
+function buildUlFromRawDataGoogleBooks(startIndex) {
+    const listEl = document.createElement('ul');
+    for (let i = startIndex; i < listItemRawData.length; i++) {
+        const item = listItemRawData[i];
+
+        const title = item.volumeInfo.title;
+        const author = item.volumeInfo.authors?.join(', ') || '';
+        const description = item.volumeInfo.description;
+        let imageUrl = item.volumeInfo.imageLinks?.thumbnail;
+        if (!imageUrl) {
+            imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
+        }
+        const listItem = buildListItem(title, author, description, imageUrl);
+        listItem.dataset.listIndex = i;
+        
+        listEl.append(listItem);
+    }
+
+    listEl.addEventListener('click', function (event) {
+        const listItem = event.target.closest('li');
+        const listIndex = listItem?.dataset.listIndex;
+        if (listIndex != undefined && listIndex != null) {
+            const rawItem = listItemRawData[listIndex];
+            buildDetailsPaneGoogleBooks(rawItem);
+            openModal();
+        }
+    });
+
+    document.getElementById('result-content').replaceChildren(listEl);
 }
 
 function fetchFromOpenLibrary(searchQuery, searchType) {
@@ -124,9 +135,11 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
 function buildListItem(title, author, description, imageUrl) {
     const listItem = document.createElement('li');
 
-    const thumbnailImg = document.createElement('img');
-    thumbnailImg.src = imageUrl;
-    listItem.appendChild(thumbnailImg);
+    if (imageUrl) {
+        const thumbnailImg = document.createElement('img');
+        thumbnailImg.src = imageUrl;
+        listItem.appendChild(thumbnailImg);
+    }
 
     const titleEl = document.createElement('h2');
     titleEl.textContent = title;
