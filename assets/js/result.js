@@ -53,7 +53,7 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
         });
 }
 
-function buildUlFromRawDataGoogleBooks(startIndex) {
+function buildUlFromRawDataGoogleBooks(startIndex = 0) {
     const listEl = document.createElement('ul');
     for (let i = startIndex; i < listItemRawData.length; i++) {
         const item = listItemRawData[i];
@@ -101,35 +101,45 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
             }
             return result.json();
         })
-        .then(data => {
-            const listEl = document.createElement('ul');
-
+        .then(data => {            
             data.docs.forEach(doc => {
-                const title = doc.title;
-                const author = doc.author_name?.join(', ') || '';
-                let description = '';
-                if (doc.subject) {
-                    description = `Subjects: ${doc.subject.join(', ')}`;
-                }
-                const imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
-                const listItem = buildListItem(title, author, description, imageUrl);
-                listItem.dataset.listIndex = listItemRawData.length;
                 listItemRawData.push(doc);
-                listEl.append(listItem);
             });
 
-            listEl.addEventListener('click', function (event) {
-                const listItem = event.target.closest('li');
-                const listIndex = listItem?.dataset.listIndex;
-                if (listIndex != undefined && listIndex != null) {
-                    const rawItem = listItemRawData[listIndex];
-                    buildDetailsPaneOpenLibrary(rawItem);
-                    openModal();
-                }
-            });
-
-            document.getElementById('result-content').replaceChildren(listEl);
+            buildUlFromRawDataOpenLibrary(0);
         });
+}
+
+function buildUlFromRawDataOpenLibrary(startIndex = 0) {
+    const listEl = document.createElement('ul');
+
+    for (let i = startIndex; i < listItemRawData.length; i++) {
+        const doc = listItemRawData[0];
+
+        const title = doc.title;
+        const author = doc.author_name?.join(', ') || '';
+        let description = '';
+        if (doc.subject) {
+            description = `Subjects: ${doc.subject.join(', ')}`;
+        }
+        const imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+        const listItem = buildListItem(title, author, description, imageUrl);
+        listItem.dataset.listIndex = i;
+        
+        listEl.append(listItem);
+    }
+
+    listEl.addEventListener('click', function (event) {
+        const listItem = event.target.closest('li');
+        const listIndex = listItem?.dataset.listIndex;
+        if (listIndex != undefined && listIndex != null) {
+            const rawItem = listItemRawData[listIndex];
+            buildDetailsPaneOpenLibrary(rawItem);
+            openModal();
+        }
+    });
+
+    document.getElementById('result-content').replaceChildren(listEl);
 }
 
 function buildListItem(title, author, description, imageUrl) {
