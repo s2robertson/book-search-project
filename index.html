@@ -26,16 +26,17 @@
 
             <!-- Form input -->
 
-            <form>
+            <form id="search-form" action="./result.html">
 
-                <input class="input is-primary custom-width mb-3" type="text" placeholder="Search by Title/Author">
+                <input id="search-input" class="input is-primary custom-width mb-3" type="text"
+                    placeholder="Search by Title/Author">
 
                 <!-- Options- Category 1 -->
 
                 <div class="field">
                     <div class="control">
                         <div class="select is-primary">
-                            <select class="custom-width">
+                            <select id="search-type" class="custom-width">
                                 <option>Please Select a Category</option>
                                 <option value="subject">Title/Subject</option>
                                 <option value="author">Author</option>
@@ -49,30 +50,25 @@
                 <div class="field">
                     <div class="control">
                         <div class="select is-primary mb-1">
-                            <select name="search-source" class="custom-width" id="search-source">
+                            <select id="search-source" class="custom-width">
                                 <option>Please Select a Source</option>
                                 <option value="googlebooks">Search from Google Books</option>
                                 <option value="openlibrary">Search from Open Library</option>
                             </select>
-                        </div>   
+                        </div>
                     </div>
                 </div>
 
                 <!-- Button -->
 
                 <div class="buttons column">
-                    <button class="button is-primary custom-width">Search</button>
+                    <button type="submit" class="button is-primary custom-width">Search</button>
                 </div>
 
             </form>
 
         </div>
     </section>
-
-
-    <script src="./assets/js/script.js"></script>
-
-
+    <script src="./assets/js/index.js" defer></script>
 </body>
-
 </html>

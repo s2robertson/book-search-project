@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded',function() {
 var searchForm = document.querySelector('#search-form');
 
 function handleSearchFormSubmit(event) {
@@ -17,3 +18,4 @@ function handleSearchFormSubmit(event) {
   location.assign(queryString);
 }
 searchForm.addEventListener('submit', handleSearchFormSubmit);
+});
