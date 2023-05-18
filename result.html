@@ -21,7 +21,7 @@
 
     <div class="column is-4 has-background-grey-light">
       <h1 class="title is-4 has-text-grey-dark">Book Search</h1>
-      <form id="search-form">
+      <form id="resuts.html">
         <div class="field mb-2">
           <div class="control">
             <input id="search-input" class="input is-primary is-fullwidth" type="text" placeholder="Search">
@@ -33,17 +33,27 @@
             <div class="select is-primary is-fullwidth">
               <select id="format-input">
                 <option value="" disabled selected>Choose a type</option>
-                <option value="Book1">Book1</option>
-                <option value="Book2">Book2</option>
-                <option value="Book3">Book3</option>
+                <option value="author">Author</option>
+                <option value="title">Title</option>
               </select>
             </div>
           </div>
         </div>
+        <div class="field mb-2">
+          <div class="control">
+            <div class="select is-primary is-fullwidth">
+              <select id="search-source">
+                      <option>Please Select a Source</option>
+                      <option value="googlebooks">Search from Google Books</option>
+                      <option value="openlibrary">Search from Open Library</option>
+                  </select>
+              </div>   
+          </div>
+      </div>
 
         <div class="field">
           <div class="control">
-            <button class="button is-primary is-fullwidth">Search</button>
+            <button id="search-button" class="button is-primary is-fullwidth">Search</button>
           </div>
         </div>
       </form>
@@ -54,18 +64,20 @@
 
     <div class="column has-background-light mr-5 ml-5">
       <h2 class="title is-4">Results</h2>
-        <div id="result-content"></div>
+      <div id="result-content"></div>
     </div>
+
     
-    <div id="details-modal" class="modal">
+  </div>
+  <div id="details-modal" class="modal">
       <div class="modal-background"></div>
       <div class="modal-content">
         <div id="details-box"></div>
-        Details
       </div>
       <button class="modal-close is-large" aria-label="close"></button>
     </div>
-  </div>
+  <script src="./assets/js/result.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <script src="./assets/js/result.js"></script>
 </body>
