@@ -205,7 +205,7 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
 
 function buildListItem(title, author, imageUrl) {
     const listItem = document.createElement('li');
-    listItem.classList.add('is-clearfix', 'mb-4');
+    listItem.classList.add('is-clearfix', 'is-clickable', 'mb-4');
 
     if (imageUrl) {
         const thumbnailImg = document.createElement('img');
