@@ -496,7 +496,7 @@ document.getElementById('show-favourites-button').onclick = showFavouritesList;
 
 // Hide favourites and restore the search results
 function hideFavouritesList() {
-    document.querySelector('#result-content h2').textContent = 'Favourites'
+    document.querySelector('#result-content h2').textContent = 'Results'
     const showFavouritesButton = document.getElementById('show-favourites-button');
     showFavouritesButton.textContent = 'Show Favourites';
     showFavouritesButton.onclick = showFavouritesList;
