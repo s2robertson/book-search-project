@@ -77,7 +77,9 @@ searchForm.addEventListener('submit', handleNewSearch);
 
 function fetchFromGoogleBooks(searchQuery, searchType) {
     let fetchQuery = '';
-    if (searchType === 'author') {
+    if (searchType === 'title') {
+        fetchQuery = 'intitle:' + searchQuery;
+    } else if (searchType === 'author') {
         fetchQuery = "inauthor:" + searchQuery;
     } else {
         fetchQuery = searchQuery;
@@ -140,7 +142,9 @@ function buildUlFromRawDataGoogleBooks(startIndex = 0) {
 
 function fetchFromOpenLibrary(searchQuery, searchType) {
     let fetchQuery = '';
-    if (searchType === 'author') {
+    if (searchType === 'title') {
+        fetchQuery = `title=${searchQuery}`;
+    } else if (searchType === 'author') {
         fetchQuery = `author=${searchQuery}`;
     } else {
         fetchQuery = `q=${searchQuery}`;
