@@ -116,7 +116,6 @@ function buildUlFromRawDataGoogleBooks(startIndex = 0) {
 
         const title = item.volumeInfo.title;
         const author = item.volumeInfo.authors?.join(', ') || '';
-        const description = item.volumeInfo.description;
         let imageUrl = item.volumeInfo.imageLinks?.thumbnail;
         if (!imageUrl) {
             imageUrl = item.volumeInfo.imageLinks?.smallThumbnail;
@@ -181,10 +180,6 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
 
         const title = doc.title;
         const author = doc.author_name?.join(', ') || '';
-        let description = '';
-        if (doc.subject) {
-            description = `Subjects: ${doc.subject.join(', ')}`;
-        }
         let imageUrl = '';
         if (doc.cover_i) {
             imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
@@ -321,6 +316,7 @@ function buildDetailsPaneOpenLibrary(doc) {
     const title = doc.title;
     const subtitle = doc.subtitle;
     const author = doc.author_name?.join(', ') || '';
+    let imageUrl = doc.cover_i;
     let description = '';
     if (doc.subject) {
         description = `Subjects: ${doc.subject.join(', ')}`;
@@ -330,16 +326,25 @@ function buildDetailsPaneOpenLibrary(doc) {
     const goodreadsId = doc.id_goodreads && doc.id_goodreads[0];
     const librarythingId = doc.id_librarything && doc.id_librarything[0];
 
-    const titleEl = document.createElement('h2');
+    const titleEl = document.createElement('h3');
+    titleEl.classList.add('title', 'is-4');
     titleEl.textContent = title;
     let subtitleEl = '';
     if (subtitle) {
-        subtitleEl = document.createElement('h3');
+        subtitleEl = document.createElement('h4');
+        subtitleEl.classList.add('subtitle');
         subtitleEl.textContent = subtitle;
     }
     const authorEl = document.createElement('p');
     if (author) {
+        authorEl.classList.add('subtitle');
         authorEl.textContent = author;
+    }
+    let imageEl = '';
+    if (imageUrl) {
+        imageEl = document.createElement('img');
+        imageEl.classList.add('is-pulled-left', 'mr-4');
+        imageEl.src = `https://covers.openlibrary.org/b/id/${imageUrl}-M.jpg`;
     }
     const descriptionEl = document.createElement('p');
     if (description) {
@@ -391,7 +396,7 @@ function buildDetailsPaneOpenLibrary(doc) {
         localStorage.setItem(favouritesKey, JSON.stringify(favourites));
     });
 
-    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, descriptionEl, firstPublishDateEl, otherSitesListEl, favouritesButton);
+    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, firstPublishDateEl, otherSitesListEl, favouritesButton);
 }
 
 function showFavouritesList() {
