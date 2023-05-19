@@ -1,6 +1,4 @@
-
-
-<a href="https://s2robertson.github.io/book-search-project/" target="blank"><strong>Book Search<Strong></a>
+# Book Search
 
 ## Description
 
@@ -14,8 +12,8 @@ The platform uses Google books API and OpenLibrary API  to scan the vast array o
  * JavaScript
  * Bulma
  * APIs used
-    - Google books API
-    - OpenLibrary API
+    - Google Books API
+    - Open Library API
 
 ## Screen Shots
 
