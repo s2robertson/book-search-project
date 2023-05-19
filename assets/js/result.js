@@ -187,7 +187,6 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
         let imageUrl = '';
         if (doc.cover_i) {
             imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
-
         }
         const listItem = buildListItem(title, author, imageUrl);
         listItem.dataset.listIndex = i;
@@ -407,14 +406,20 @@ function showFavouritesList() {
     const favouritesList = [];
     for (const key in favourites) {
         const listItem = document.createElement('li');
+        listItem.classList.add('is-clearfix', 'is-clickable', 'mb-4')
         const { type, data } = favourites[key];
         let title;
         let author;
+        let imageUrl;
         let eventHandler;
         
         if (type == 'googlebooks') {
             title = data.volumeInfo.title;
             author = data.volumeInfo.authors?.join(', ') || '';
+            imageUrl = data.volumeInfo.imageLinks?.thumbnail;
+            if (!imageUrl) {
+                imageUrl = data.volumeInfo.imageLinks?.smallThumbnail;
+            }
             eventHandler = function() {
                 buildDetailsPaneGoogleBooks(data);
                 openModal();
@@ -422,13 +427,28 @@ function showFavouritesList() {
         } else {
             title = data.title;
             author = data.author_name?.join(', ') || '';
+            if (data.cover_i) {
+                imageUrl = `https://covers.openlibrary.org/b/id/${data.cover_i}-M.jpg`;
+            }
             eventHandler = function() {
                 buildDetailsPaneOpenLibrary(data);
                 openModal();
             }
         }
 
-        listItem.innerHTML = `<strong>${title}</strong> ${author}`;
+        if (imageUrl) {
+            const imageEl = document.createElement('img');
+            imageEl.classList.add('is-pulled-left', 'mr-4');
+            imageEl.src = imageUrl;
+            listItem.append(imageEl);
+        }
+        const titleEl = document.createElement('h3');
+        titleEl.classList.add('title', 'is-4');
+        titleEl.textContent = title;
+        const authorEl = document.createElement('p');
+        authorEl.classList.add('subtitle');
+        authorEl.textContent = author;
+        listItem.append(titleEl, authorEl);
         listItem.addEventListener('click', eventHandler);
         favouritesList.push(listItem);
     }
