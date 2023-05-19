@@ -185,7 +185,11 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
         if (doc.subject) {
             description = `Subjects: ${doc.subject.join(', ')}`;
         }
-        const imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+        let imageUrl = '';
+        if (doc.cover_i) {
+            imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+
+        }
         const listItem = buildListItem(title, author, imageUrl);
         listItem.dataset.listIndex = i;
         
@@ -206,18 +210,22 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
 
 function buildListItem(title, author, imageUrl) {
     const listItem = document.createElement('li');
+    listItem.classList.add('is-clearfix', 'mb-4');
 
     if (imageUrl) {
         const thumbnailImg = document.createElement('img');
+        thumbnailImg.classList.add('is-pulled-left');
         thumbnailImg.src = imageUrl;
         listItem.appendChild(thumbnailImg);
     }
 
-    const titleEl = document.createElement('h2');
+    const titleEl = document.createElement('h3');
+    titleEl.classList.add('title', 'is-4')
     titleEl.textContent = title;
     listItem.appendChild(titleEl);
 
     const authorEl = document.createElement('p');
+    authorEl.classList.add('subtitle');
     authorEl.textContent = `Author(s): ${author}`;
     listItem.appendChild(authorEl);
 
