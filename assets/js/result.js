@@ -11,7 +11,7 @@ if (unparsedParams.startsWith('?')) {
     // remove leading '?'
     unparsedParams = unparsedParams.slice(1);
 }
-unparsedParams = unparsedParams.split('&');
+unparsedParams = unparsedParams.split('&')
 
 let parsedParams = {};
 unparsedParams.forEach(pair => {
@@ -22,7 +22,7 @@ unparsedParams.forEach(pair => {
 /* Set the values in the search form (on the left) to the same as the ones from the location.
  * If any arguments are somehow invalid, this will show up in the search form */
 const searchQueryEl = document.getElementById('search-query');
-searchQueryEl.value = parsedParams.q || '';
+searchQueryEl.value = parsedParams.q ? decodeURIComponent(parsedParams.q) : '';
 const searchTypeEl = document.getElementById('search-type');
 if (!parsedParams.type) {
     parsedParams.type = 'subject';
