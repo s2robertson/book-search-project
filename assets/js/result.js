@@ -214,7 +214,7 @@ function buildListItem(title, author, imageUrl) {
 
     if (imageUrl) {
         const thumbnailImg = document.createElement('img');
-        thumbnailImg.classList.add('is-pulled-left');
+        thumbnailImg.classList.add('is-pulled-left', 'mr-4');
         thumbnailImg.src = imageUrl;
         listItem.appendChild(thumbnailImg);
     }
@@ -246,22 +246,27 @@ function buildDetailsPaneGoogleBooks(item) {
     }
     const description = item.volumeInfo.description;
     const publishedDate = item.volumeInfo.publishedDate;
+    const googleBooksLink = item.volumeInfo.infoLink;
     const buyLink = item.saleInfo?.buyLink;
 
-    const titleEl = document.createElement('h2');
+    const titleEl = document.createElement('h3');
+    titleEl.classList.add('title', 'is-4');
     titleEl.textContent = title;
     let subtitleEl = '';
     if (subtitle) {
-        subtitleEl = document.createElement('h3');
+        subtitleEl = document.createElement('h4');
+        subtitleEl.classList.add('subtitle');
         subtitleEl.textContent = subtitle;
     }
     const authorEl = document.createElement('p');
     if (author) {
+        authorEl.classList.add('subtitle');
         authorEl.textContent = author;
     }
     let imageEl = '';
     if (imageUrl) {
         imageEl = document.createElement('img');
+        imageEl.classList.add('is-pulled-left', 'mr-4');
         imageEl.src = imageUrl;
     }
     const descriptionEl = document.createElement('p');
@@ -271,6 +276,10 @@ function buildDetailsPaneGoogleBooks(item) {
     const publishDateEl = document.createElement('p');
     if (publishedDate) {
         publishDateEl.textContent = `Published: ${publishedDate}`;
+    }
+    const googleBooksRefEl = document.createElement('p');
+    if (googleBooksLink) {
+        googleBooksRefEl.innerHTML = `<a href=${googleBooksLink}>View on Google Books</a>`
     }
     const purchaseEl = document.createElement('p');
     if (buyLink) {
@@ -305,7 +314,7 @@ function buildDetailsPaneGoogleBooks(item) {
         localStorage.setItem(favouritesKey, JSON.stringify(favourites));
     });
 
-    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, publishDateEl, purchaseEl, favouritesButton);
+    document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, publishDateEl, googleBooksRefEl, purchaseEl, favouritesButton);
 }
 
 function buildDetailsPaneOpenLibrary(doc) {
