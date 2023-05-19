@@ -5,17 +5,22 @@ const removeFromFavouritesHTML = `<span class="favourited">&starf;</span> Remove
 const addToFavouritesHTML = '&star; Add to favourites';
 let page = 1;
 
+// if the user navigated here from index.html, get the search parameters from the location
 let unparsedParams = document.location.search;
 if (unparsedParams.startsWith('?')) {
+    // remove leading '?'
     unparsedParams = unparsedParams.slice(1);
 }
 unparsedParams = unparsedParams.split('&');
+
 let parsedParams = {};
 unparsedParams.forEach(pair => {
     const [key, value] = pair.split('=');
     parsedParams[key] = value;
 });
 
+/* Set the values in the search form (on the left) to the same as the ones from the location.
+ * If any arguments are somehow invalid, this will show up in the search form */
 const searchQueryEl = document.getElementById('search-query');
 searchQueryEl.value = parsedParams.q || '';
 const searchTypeEl = document.getElementById('search-type');
@@ -33,6 +38,7 @@ performSearch();
 
 function performSearch() {
     if (!parsedParams.q) {
+        // show a red border to indicate an error
         searchQueryEl.classList.remove('is-primary');
         searchQueryEl.classList.add('is-danger');
         return;
@@ -51,6 +57,7 @@ function performSearch() {
     }
 }
 
+// The user can change search parameters and re-search using the left-hand form
 function handleNewSearch(event) {
     event.preventDefault();
     const searchQueryValue = searchQueryEl.value;
@@ -68,6 +75,8 @@ function handleNewSearch(event) {
     parsedParams.q = searchQueryValue;
     parsedParams.type = searchTypeValue;
     parsedParams.source = searchSourceValue;
+
+    // discard the previous search's data
     listItemRawData = [];
     page = 1;
     performSearch();
@@ -97,8 +106,9 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
             data.items.forEach(item => {
                 listItemRawData.push(item);
             });
-            buildUlFromRawDataGoogleBooks(startIndex);
+            buildListFromRawDataGoogleBooks(startIndex);
 
+            // enable or disable the 'load more' button, depending on whether there ARE more
             if (listItemRawData.length < data.totalItems) {
                 loadMoreButton.removeAttribute('disabled');
             } else {
@@ -107,9 +117,10 @@ function fetchFromGoogleBooks(searchQuery, searchType) {
         });
 }
 
-function buildUlFromRawDataGoogleBooks(startIndex = 0) {
+function buildListFromRawDataGoogleBooks(startIndex = 0) {
     const listEl = document.getElementById('result-list');
     if (startIndex === 0) {
+        // if the user performed a new search, clear old results
         listEl.innerHTML = '';
     }
 
@@ -128,7 +139,8 @@ function buildUlFromRawDataGoogleBooks(startIndex = 0) {
         listEl.append(listItem);
     }
 
-    // using the onclick attribute erases any previous event listeners
+    /* Using the onclick attribute erases any previous event listeners.
+     * This is needed if the user switches search sources */
     listEl.onclick = function (event) {
         const listItem = event.target.closest('li');
         const listIndex = listItem?.dataset.listIndex;
@@ -162,9 +174,9 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
             data.docs.forEach(doc => {
                 listItemRawData.push(doc);
             });
-
             buildUlFromRawDataOpenLibrary(startIndex);
 
+            // enable or disable the 'load more' button depending on whether there ARE more
             if (listItemRawData.length < data.numFound) {
                 loadMoreButton.removeAttribute('disabled');
             } else {
@@ -176,6 +188,7 @@ function fetchFromOpenLibrary(searchQuery, searchType) {
 function buildUlFromRawDataOpenLibrary(startIndex = 0) {
     const listEl = document.getElementById('result-list');
     if (startIndex === 0) {
+        // if the user performed a new search, clear old results
         listEl.innerHTML = '';
     }
 
@@ -206,6 +219,7 @@ function buildUlFromRawDataOpenLibrary(startIndex = 0) {
     };
 }
 
+// builds a list item for the search results
 function buildListItem(title, author, imageUrl) {
     const listItem = document.createElement('li');
     listItem.classList.add('is-clearfix', 'is-clickable', 'mb-4');
@@ -234,6 +248,7 @@ function buildListItem(title, author, imageUrl) {
     return listItem;
 }
 
+// Constructs the contents of the modal window (for Google Books)
 function buildDetailsPaneGoogleBooks(item) {
     const title = item.volumeInfo.title;
     const subtitle = item.volumeInfo.subtitle;
@@ -287,6 +302,7 @@ function buildDetailsPaneGoogleBooks(item) {
         purchaseEl.append(link);
     }
 
+    // 'favourites' is an object map of items the user has chosen
     const itemFavouritesKey = "gb" + item.id;
     const initialFavouriteData = favourites[itemFavouritesKey];
     const favouritesButton = document.createElement('button');
@@ -298,23 +314,28 @@ function buildDetailsPaneGoogleBooks(item) {
     favouritesButton.classList.add('button');
 
     favouritesButton.addEventListener('click', () => {
+        // currFavouriteData will only be defined if the user has chosen the current item as a favourite
         const currFavouriteData = favourites[itemFavouritesKey];
         if (currFavouriteData) {
+            // un-favourite the item
             delete favourites[itemFavouritesKey];
             favouritesButton.innerHTML = addToFavouritesHTML;
         } else {
+            // add to favourites
             favourites[itemFavouritesKey] = {
                 type: 'googlebooks',
                 data: item
             };
             favouritesButton.innerHTML = removeFromFavouritesHTML;
         }
+        // record the change in favourite status
         localStorage.setItem(favouritesKey, JSON.stringify(favourites));
     });
 
     document.getElementById('details-box').replaceChildren(titleEl, subtitleEl, authorEl, imageEl, descriptionEl, publishDateEl, googleBooksRefEl, purchaseEl, favouritesButton);
 }
 
+// Constructs the contents of the modal window (for Open Library)
 function buildDetailsPaneOpenLibrary(doc) {
     const title = doc.title;
     const subtitle = doc.subtitle;
@@ -385,17 +406,21 @@ function buildDetailsPaneOpenLibrary(doc) {
     favouritesButton.classList.add('button');
     
     favouritesButton.addEventListener('click', () => {
+        // currFavouriteData will only be defined if the current item is favourited
         const currFavouriteData = favourites[itemFavouritesKey];
         if (currFavouriteData) {
+            // un-favourite
             delete favourites[itemFavouritesKey];
             favouritesButton.innerHTML = addToFavouritesHTML;
         } else {
+            // add to favourites
             favourites[itemFavouritesKey] = {
                 type: 'openlibrary',
                 data: doc
             };
             favouritesButton.innerHTML = removeFromFavouritesHTML;
         }
+        // record the change in favourite status
         localStorage.setItem(favouritesKey, JSON.stringify(favourites));
     });
 
@@ -413,6 +438,7 @@ function showFavouritesList() {
         let imageUrl;
         let eventHandler;
         
+        // how to extract the necessary data depends on the data's source
         if (type == 'googlebooks') {
             title = data.volumeInfo.title;
             author = data.volumeInfo.authors?.join(', ') || '';
@@ -436,6 +462,7 @@ function showFavouritesList() {
             }
         }
 
+        // do the image first so that the other content floats around it
         if (imageUrl) {
             const imageEl = document.createElement('img');
             imageEl.classList.add('is-pulled-left', 'mr-4');
@@ -453,16 +480,21 @@ function showFavouritesList() {
         favouritesList.push(listItem);
     }
 
+    /* The favourites content replaces the search results, but the data is still around,
+     * and can be switched back */
     document.querySelector('#result-content h2').textContent = 'Favourites'
     document.getElementById('result-list').replaceChildren(...favouritesList);
+    // make the 'show favourites' button hide them instead (maybe it should be called toggle-favourites-button)
     const showFavouritesButton = document.getElementById('show-favourites-button');
     showFavouritesButton.textContent = 'Hide Favourites';
     showFavouritesButton.onclick = hideFavouritesList;
+    // hide the 'load more' button when favourites are showing
     loadMoreButton.style.display = 'none';
 }
-// Showing the favourites is the page default
+// Favourites aren't displayed by default, so the button shows them
 document.getElementById('show-favourites-button').onclick = showFavouritesList;
 
+// Hide favourites and restore the search results
 function hideFavouritesList() {
     document.querySelector('#result-content h2').textContent = 'Favourites'
     const showFavouritesButton = document.getElementById('show-favourites-button');
@@ -470,10 +502,11 @@ function hideFavouritesList() {
     showFavouritesButton.onclick = showFavouritesList;
 
     if (parsedParams.source === 'googlebooks') {
-        buildUlFromRawDataGoogleBooks(0);
+        buildListFromRawDataGoogleBooks(0);
     } else {
         buildUlFromRawDataOpenLibrary(0);
     }
+    // the 'load more' button is hidden when favourites are showing, this restores the previous status
     loadMoreButton.style.display = '';
 }
 
