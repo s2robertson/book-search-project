@@ -14,30 +14,30 @@
 
 <body background="assets/images/books online.jpg" class="hero is-fullheight has-background-primary-light">
 
-    <section class="hero-body is-flex is-align-items-center mb-1 custom-padding">
+    <section class="hero-body is-flex is-justify-content-center is-align-items-center">
 
-        <div class="container has-text-centered is-flex-direction-column is-justify-content-center ">
+        <div class="box has-background-grey-lighter">
 
             <!-- Heading -->
 
-            <h1 class="title has-text-primary has-text-weight-bold column is-size-2 mb-1">
+            <h1 class="title has-text-weight-bold column is-size-2 mb-1 has-text-centered">
                 Book Search
             </h1>
 
             <!-- Form input -->
 
-            <form id="search-form" action="./result.html">
+            <form id="search-form">
 
                 <input id="search-input" class="input is-primary custom-width mb-3" type="text"
-                    placeholder="Search by Title/Author">
+                    placeholder="Search" required>
 
                 <!-- Options- Category 1 -->
 
                 <div class="field">
+                    <label for="search-type" class="label">Search By:</label>
                     <div class="control">
                         <div class="select is-primary">
                             <select id="search-type" class="custom-width">
-                                <option>Please Select a Category</option>
                                 <option value="subject">Title/Subject</option>
                                 <option value="author">Author</option>
                             </select>
@@ -48,10 +48,10 @@
                 <!-- Options- Category 2 -->
 
                 <div class="field">
+                    <label for="search-source" class="label">Source:</label>
                     <div class="control">
                         <div class="select is-primary mb-1">
                             <select id="search-source" class="custom-width">
-                                <option>Please Select a Source</option>
                                 <option value="googlebooks">Search from Google Books</option>
                                 <option value="openlibrary">Search from Open Library</option>
                             </select>
@@ -61,7 +61,7 @@
 
                 <!-- Button -->
 
-                <div class="buttons column">
+                <div class="buttons">
                     <button type="submit" class="button is-primary custom-width">Search</button>
                 </div>
 

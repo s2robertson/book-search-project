@@ -1,21 +1,16 @@
 document.addEventListener('DOMContentLoaded',function() {
-var searchForm = document.querySelector('#search-form');
+  var searchForm = document.getElementById('search-form');
 
-function handleSearchFormSubmit(event) {
-  event.preventDefault();
+  function handleSearchFormSubmit(event) {
+    event.preventDefault();
 
-  var searchInput = document.querySelector('#search-input').value;
-  var typeInput = document.querySelector('#search-type').value;
-  var sourceInput = document.querySelector('#search-source').value;
+    const searchInputEl = document.querySelector('#search-input');
+    var searchInput = searchInputEl.value;
+    var typeInput = document.querySelector('#search-type').value;
+    var sourceInput = document.querySelector('#search-source').value;
 
-  if (!searchInput) {
-    console.error('Please input a search value!');
-    return;
+    var queryString = './result.html?q=' + searchInput + '&type=' + typeInput + '&source=' + sourceInput;
+    location.assign(queryString);
   }
-
-  var queryString = './result.html?q=' + searchInput + '&type=' + typeInput + '&source=' + sourceInput;
-
-  location.assign(queryString);
-}
-searchForm.addEventListener('submit', handleSearchFormSubmit);
+  searchForm.addEventListener('submit', handleSearchFormSubmit);
 });
